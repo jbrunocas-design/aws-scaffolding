@@ -1,0 +1,43 @@
+name: 'Destroy Predefined EC2 Instance'
+
+# This workflow is triggered by a manual button click in GitHub 
+# or an API call.
+on:
+  workflow_dispatch:
+
+jobs:
+  terraform:
+    name: 'Terraform Destroy'
+    runs-on: ubuntu-latest
+    
+    # These permissions are required for secure authentication with AWS.
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+    # Step 1: Checkout the repository code to access main.tf
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    # Step 2: Configure AWS Credentials using OpenID Connect (OIDC)
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        # IMPORTANT: This must be the same role used in the apply workflow
+        role-to-assume: arn:aws:iam::438985216510:role/GitHubActionsOIDCRole
+        aws-region: "us-east-1"
+
+    # Step 3: Setup Terraform CLI
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+
+    # Step 4: Initialize Terraform
+    # This is required to read the state file and understand the infrastructure.
+    - name: Terraform Init
+      run: terraform init
+
+    # Step 5: Destroy the Terraform-managed infrastructure
+    # This will remove the EC2 instance defined in your main.tf file.
+    - name: Terraform Destroy
+      run: terraform destroy -auto-approve
