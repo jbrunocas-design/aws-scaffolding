@@ -1,7 +1,5 @@
-name: 'Create EC2 Instance'
+name: 'Create AWS Resource'
 
-# This workflow is triggered by a manual button click in GitHub 
-# or an API call (e.g., from Backstage).
 on:
   push:
     branches: [main]
@@ -13,36 +11,33 @@ jobs:
   terraform:
     name: 'Terraform Apply'
     runs-on: ubuntu-latest
-    
-    # These permissions are required for secure authentication with AWS.
+
     permissions:
       id-token: write
       contents: read
 
     steps:
-    # Step 1: Checkout the repository code so the workflow can access main.tf
     - name: Checkout
       uses: actions/checkout@v3
 
-    # Step 2: Configure AWS Credentials using OpenID Connect (OIDC)
-    # This is the most secure method for authentication in GitHub Actions.
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v2
       with:
-        # IMPORTANT: Replace this with the ARN of the role you create in AWS
         role-to-assume: arn:aws:iam::438985216510:role/GitHubActionsOIDCRole
-        aws-region: "${{ values.Region }}" # Must match the region in your provider block
+        aws-region: "${{ secrets.AWS_REGION }}" # Or use a workflow input
 
-    # Step 3: Setup
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v2
 
-    # Step 4: Initialize Terraform
-    # This downloads the AWS provider required by your code.
     - name: Terraform Init
       run: terraform init
 
-    # Step 5: Apply the Terraform plan
-    # This will create the EC2 instance defined in your main.tf file.
     - name: Terraform Apply
+      env:
+        TF_VAR_resource_type: ${{ secrets.RESOURCE_TYPE }}
+        TF_VAR_instance_name: ${{ secrets.INSTANCE_NAME }}
+        TF_VAR_bucket_name: ${{ secrets.BUCKET_NAME }}
+        TF_VAR_db_instance_identifier: ${{ secrets.DB_INSTANCE_IDENTIFIER }}
+        TF_VAR_db_engine: ${{ secrets.DB_ENGINE }}
+        TF_VAR_region: ${{ secrets.AWS_REGION }}
       run: terraform apply -auto-approve
