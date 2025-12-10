@@ -21,12 +21,12 @@ resource "aws_s3_bucket" "s3" {
 # RDS Instance
 resource "aws_db_instance" "rds" {
   count                     = "${{ values.ResourceType }}" == "RDS" ? 1 : 0
-  identifier                = "${{ values.DBInstanceIdentifier }}"
-  engine                    = "${{ values.DBEngine }}"
+  identifier                = "${{ values.ResourceType }}" == "RDS" ? "${{ values.DBInstanceIdentifier }}" : "dummy-rds"
+  engine                    = "${{ values.ResourceType }}" == "RDS" ? "${{ values.DBEngine }}" : "mysql"
   instance_class            = "db.t3.micro"
   allocated_storage         = 20
   username                  = "admin"
-  password                  = "SuperSecret123!" # Usa secrets en producción
+  password                  = "SuperSecret123!"
   skip_final_snapshot       = true
   publicly_accessible       = true
 }
