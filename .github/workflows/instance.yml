@@ -27,7 +27,7 @@ jobs:
       with:
         # IMPORTANT: Replace this with the ARN of the role you create in AWS
         role-to-assume: arn:aws:iam::438985216510:role/GitHubActionsOIDCRole
-        aws-region: "us-east-1" # Must match the region in your provider block
+        aws-region: "${{ values.Region }}" # Must match the region in your provider block
 
     # Step 3: Setup
     - name: Setup Terraform
