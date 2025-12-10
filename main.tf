@@ -5,8 +5,8 @@ provider "aws" {
 # EC2 Instance
 resource "aws_instance" "ec2" {
   count         = "${{ values.ResourceType }}" == "EC2" ? 1 : 0
-  ami           = "ami-0c94855ba95c71c99" # Cambia el AMI según la región si lo necesitas
-  instance_type = "t2.micro"
+  ami           = "ami-0156001f0548e90b1" # Cambia el AMI según la región si lo necesitas
+  instance_type = "t3.micro"
   tags = {
     Name = "${{ values.InstanceName }}"
   }
